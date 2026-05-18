@@ -1,0 +1,14 @@
+policy:
+  name: confidence-gate
+  version: "1.0"
+  category: clinical
+  priority: 85
+  evaluation_path: deterministic
+  description: "Escalate low-confidence AI classifications to human review"
+  evidence:
+    - "FDA AI-Enabled Device Guidance (2025): pre-specified performance threshold"
+    - "Epic Sepsis AI (JAMA Intern Med 2021): sensitivity 63%, PPV 12% — 109 alerts per true case"
+  match:
+    condition: "agent.confidence < 0.70"
+  action: ESCALATE
+  message: "Confidence {confidence} below threshold 0.70. Human review required."

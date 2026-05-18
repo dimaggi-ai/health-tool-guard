@@ -1,0 +1,37 @@
+policy:
+  name: draft-only-mode
+  version: "1.0"
+  category: agent-governance
+  priority: 490
+  evaluation_path: hybrid
+  description: >
+    Hybrid policy: detect when an agent's output text signals intent to take
+    autonomous public action (e.g. "I will send this email", "posting to LinkedIn",
+    "I have submitted"). Gemma 4 evaluates the output for autonomous action intent
+    and escalates to human review if detected.
+    Complementary to no-public-actions: that policy blocks known tool names;
+    this one catches the agent narrating its intent in natural language.
+  evidence:
+    - "NIST AI RMF 1.0 Govern 1.7: transparency and explainability for human oversight"
+    - "EU AI Act Article 13: transparency obligations for AI systems"
+    - "DIMAGGI internal policy: no autonomous public action without human approval"
+  match:
+    evaluation_path: hybrid
+    gemma_prompt: >
+      Does this agent output contain language indicating it is about to autonomously
+      perform a public-facing action such as:
+      - sending an email or message to an external party
+      - posting to LinkedIn, Twitter/X, Hacker News, or any social platform
+      - creating or merging a GitHub issue, PR, or comment
+      - submitting a grant application, hackathon entry, or form
+      - deploying code to production
+      - contacting any person or organisation outside the company
+
+      Respond with only YES or NO.
+    gemma_threshold: YES
+  action: ESCALATE
+  escalation:
+    message: >
+      Agent output contains autonomous public action intent. Escalating for human review.
+      Output saved as DRAFT. Do not execute without explicit approval.
+    require_human_approval: true

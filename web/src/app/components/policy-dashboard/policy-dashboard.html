@@ -1,0 +1,174 @@
+<div class="dashboard-wrap">
+  <div class="page-header">
+    <h1 class="page-title">Policy Dashboard</h1>
+    <span class="mode-badge">⚡ Enforcement Active</span>
+    <span class="eval-online-pill">🧠 Deep eval: Gemma 4 E4B · online</span>
+  </div>
+
+  <div>
+  <!-- KPI row -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-val">{{ totalCalls }}</div>
+      <div class="kpi-lbl">Tool Calls Intercepted</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-val">{{ allowCount }}</div>
+      <div class="kpi-lbl">Allowed</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-val">{{ denyCount }}</div>
+      <div class="kpi-lbl">Denied</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-val">{{ redactCount }}</div>
+      <div class="kpi-lbl">Redacted</div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-val">{{ escalateCount }}</div>
+      <div class="kpi-lbl">Escalated</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-val">{{ flagCount }}</div>
+      <div class="kpi-lbl">Flagged (Hybrid)</div>
+    </div>
+    <div class="kpi-card kpi-indigo">
+      <div class="kpi-val">{{ p50latency }}ms</div>
+      <div class="kpi-lbl">p50 Latency</div>
+    </div>
+    <div class="kpi-card kpi-indigo" style="opacity:0.75">
+      <div class="kpi-val">{{ p95latency }}ms</div>
+      <div class="kpi-lbl">p95 Latency</div>
+    </div>
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-val">${{ sessionNearMiss | number }}</div>
+      <div class="kpi-lbl">Near-miss Value (this session · ${{ perEventValue | number }}/event)</div>
+    </div>
+    <div class="kpi-card" style="background:#fef2f2;border-color:#fecaca">
+      <div class="kpi-val" style="color:#dc2626">{{ escalateCount }}</div>
+      <div class="kpi-lbl">Escalations queued</div>
+    </div>
+    <div class="kpi-card" style="background:#eef2ff;border-color:#c7d2fe">
+      <div class="kpi-val" style="color:#3730a3">{{ deterministicPct }}% / {{ hybridPct }}%</div>
+      <div class="kpi-lbl">Rule / AI eval split</div>
+    </div>
+    <div class="kpi-card" style="background:#f0fdf4;border-color:#bbf7d0">
+      <div class="kpi-val" style="color:#16a34a">{{ policyCoverage }}%</div>
+      <div class="kpi-lbl">Policy coverage</div>
+    </div>
+  </div>
+
+  <!-- Decision outcome donut + eval path split -->
+  <div class="donut-row">
+    <div class="donut-card">
+      <div class="section-title">Decision Outcomes</div>
+      <div class="donut-wrap">
+        <div class="donut" [style.background]="decisionDonut">
+          <div class="donut-hole">
+            <span class="donut-total">{{ totalCalls }}</span>
+            <span class="donut-sub">calls</span>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="dl-row"><span class="dl-dot" style="background:#22c55e"></span><span class="dl-label">ALLOW</span><span class="dl-val">{{ allowCount }}</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:#ef4444"></span><span class="dl-label">DENY</span><span class="dl-val">{{ denyCount }}</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:#f97316"></span><span class="dl-label">REDACT</span><span class="dl-val">{{ redactCount }}</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:#3b82f6"></span><span class="dl-label">ESCALATE</span><span class="dl-val">{{ escalateCount }}</span></div>
+          <div class="dl-row"><span class="dl-dot" style="background:#8b5cf6"></span><span class="dl-label">FLAG</span><span class="dl-val">{{ flagCount }}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="split-card">
+      <div class="section-title">Evaluation Path Split</div>
+      <div class="split-bar-wrap">
+        <div class="split-bar det" [style.width.%]="deterministicPct">
+          <span class="split-label">⚡ {{ deterministicPct }}%</span>
+        </div>
+        <div class="split-bar hyb" [style.width.%]="hybridPct">
+          <span class="split-label">🧠 {{ hybridPct }}%</span>
+        </div>
+      </div>
+      <div class="split-legend">
+        <span class="split-det-lbl">⚡ Deterministic ({{ deterministicCount }} calls · &lt;12ms)</span>
+        <span class="split-hyb-lbl">🧠 Gemma 4 hybrid ({{ hybridCount }} calls · &lt;800ms)</span>
+      </div>
+      <div class="split-caption">Tool Guard resolves {{ deterministicPct }}% of decisions without invoking an LLM — cost-efficient, privacy-preserving, edge-deployable.</div>
+    </div>
+  </div>
+
+  <!-- Real-time decision feed -->
+  <div class="feed-section">
+    <div class="section-title">Live Decision Feed</div>
+    <div class="decision-feed">
+      <div *ngFor="let r of feedRecords" class="feed-row" [ngClass]="'feed-' + r.decision.toLowerCase()">
+        <span class="feed-dot" [ngClass]="'dot-' + r.decision.toLowerCase()"></span>
+        <span class="feed-decision">{{ r.decision }}</span>
+        <span class="feed-tool">{{ r.tool }}</span>
+        <span class="feed-scenario">{{ r.scenario }}</span>
+        <span class="feed-lang" *ngIf="r.language !== 'en'">{{ r.language.toUpperCase() }}</span>
+        <span class="feed-path" [class.hybrid]="r.evalPath==='HYBRID'">{{ r.evalPath === 'HYBRID' ? '🧠' : '⚡' }}</span>
+        <span class="feed-time">{{ r.latencyMs }}ms</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent status cards -->
+  <div class="agents-section">
+    <div class="section-title">Agents Under Governance</div>
+    <div class="agent-grid">
+      <div *ngFor="let a of agentStats" class="agent-card">
+        <div class="agent-name">{{ a.name }}</div>
+        <div class="agent-stats">
+          <span class="astat"><span class="astat-val">{{ a.total }}</span><span class="astat-lbl">calls</span></span>
+          <span class="astat"><span class="astat-val deny-pct">{{ a.denyPct }}%</span><span class="astat-lbl">denied</span></span>
+          <span class="astat"><span class="astat-val">{{ a.lastActivity }}</span><span class="astat-lbl">last active</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <!-- Language distribution -->
+    <div class="section-card">
+      <div class="section-title">Language Distribution — 8 Languages · 5 Scripts</div>
+      <div class="lang-list">
+        <div *ngFor="let l of languages" class="lang-row">
+          <div class="lang-name">{{ l.name }}</div>
+          <div class="lang-bar-wrap">
+            <div class="lang-bar" [style.width.%]="l.pct" [style.background]="l.color"></div>
+          </div>
+          <div class="lang-pct">{{ l.pct }}%</div>
+        </div>
+      </div>
+      <div class="scripts-row">
+        <span class="script-pill">Latin</span>
+        <span class="script-pill">Devanagari</span>
+        <span class="script-pill">Arabic (RTL)</span>
+        <span class="script-pill">Bengali</span>
+        <span class="script-pill">Ge'ez</span>
+      </div>
+    </div>
+
+    <!-- Policy match table -->
+    <div class="section-card">
+      <div class="section-title">Policy Match Summary</div>
+      <table class="policy-table">
+        <thead>
+          <tr><th>Policy</th><th>Category</th><th>Path</th><th>Matches</th><th>Last fired</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of policies" [class.zero]="p.matches === 0">
+            <td class="policy-name-cell">{{ p.name }}</td>
+            <td><span class="cat-badge" [class.cat-lingua]="p.category==='Lingua'">{{ p.category }}</span></td>
+            <td><span class="path-badge" [class.hybrid]="p.path==='hybrid'">{{ p.path }}</span></td>
+            <td class="match-count" [class.zero-count]="p.matches===0">{{ p.matches }}</td>
+            <td class="fired-at">{{ p.lastFired }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="coverage-note">📋 lingua-script-guard and lingua-terminology-lock have fired. lingua-language-match fires on any language mismatch. lingua-reading-level awaits grade-level violations.</div>
+    </div>
+  </div>
+</div>
+
+</div>

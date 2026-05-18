@@ -1,0 +1,75 @@
+# DIMAGGI Tool Guard — single-command quick start for judges.
+#
+#   docker compose -f docker/compose.yml up        # build everything; pulls gemma4:e4b on first run
+#   open http://localhost:8080                     # full dashboard + Live Demo
+#
+# Requires:
+#   - Docker 24+
+#   - NVIDIA GPU + nvidia-container-toolkit  (Gemma 4 inference uses ~10 GB VRAM)
+#
+# Without a GPU, comment out the `deploy.resources` block below — inference will
+# fall back to CPU at <2 tok/s. Deterministic policies, audit chain, and scripted
+# scenarios still run; HYBRID calls work but are multi-second per call.
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: toolguard-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 5s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  model-puller:
+    # One-shot helper that pulls gemma4:e4b on first start. After the model is
+    # cached in the ollama-models volume, this container exits within a second.
+    image: ollama/ollama:latest
+    container_name: toolguard-model-puller
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - ollama-models:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama list 2>/dev/null | grep -q '^gemma4:e4b' \
+          && echo "[model-puller] gemma4:e4b already cached" \
+          || (echo "[model-puller] pulling gemma4:e4b (~3 GB, one-time)" && ollama pull gemma4:e4b)
+    restart: "no"
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: toolguard-app
+    depends_on:
+      ollama:
+        condition: service_healthy
+      model-puller:
+        condition: service_completed_successfully
+    environment:
+      OLLAMA_BASE: http://ollama:11434
+      TOOLGUARD_SERVE_FRONTEND: "1"
+      TOOLGUARD_CORS_ORIGINS: "http://localhost:8080"
+    ports:
+      # Override with HOST_PORT=8081 docker compose ... up if 8080 is busy
+      - "${HOST_PORT:-8080}:8080"
+    restart: unless-stopped
+
+volumes:
+  ollama-models:

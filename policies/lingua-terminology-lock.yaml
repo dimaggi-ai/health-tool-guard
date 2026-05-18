@@ -1,0 +1,13 @@
+policy:
+  name: lingua-terminology-lock
+  version: "1.0"
+  category: lingua
+  priority: 140
+  evaluation_path: hybrid
+  description: "Domain terms must use target-language equivalents, not English defaults"
+  evidence:
+    - "WHO Patient Communication Guidelines: clinical terminology must use patient language"
+  deep_evaluation:
+    model: gemma4:e4b
+    glossary: medical_terms_{language}.json
+  action: FLAG

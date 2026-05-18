@@ -1,0 +1,64 @@
+<div class="shell" [class.sidebar-collapsed]="collapsed()">
+  <aside class="sidebar">
+    <button class="collapse-btn" (click)="toggleSidebar()" [title]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+      {{ collapsed() ? '›' : '‹' }}
+    </button>
+
+    <a class="brand" routerLink="/overview" title="Open Tool Guard overview">
+      <div class="brand-name">DIMAGGI<span class="brand-dot">.</span>AI</div>
+      <div class="brand-sub">Tool Guard</div>
+      <div class="brand-tagline">Policy firewall for AI agents</div>
+    </a>
+
+    <nav class="nav">
+      <a routerLink="overview"  routerLinkActive="active" class="nav-item" [title]="collapsed() ? 'Overview' : ''">
+        <span class="nav-icon">◎</span><span class="nav-label"> Overview</span>
+      </a>
+      <a routerLink="demo"      routerLinkActive="active" class="nav-item" [title]="collapsed() ? 'Live Demo' : ''">
+        <span class="nav-icon">▶</span><span class="nav-label"> Live Demo</span>
+      </a>
+      <a *ngIf="backendLive() !== false" routerLink="architecture" routerLinkActive="active" class="nav-item" [title]="collapsed() ? 'Architecture' : ''">
+        <span class="nav-icon">🏗</span><span class="nav-label"> Architecture</span>
+      </a>
+      <a routerLink="policies"  routerLinkActive="active" class="nav-item" [title]="collapsed() ? 'Policy Dashboard' : ''">
+        <span class="nav-icon">⬡</span><span class="nav-label"> Policy Dashboard</span>
+      </a>
+      <a routerLink="audit"     routerLinkActive="active" class="nav-item" [title]="collapsed() ? 'Audit Chain' : ''">
+        <span class="nav-icon">⛓</span><span class="nav-label"> Audit Chain</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-info">
+      <div class="mode-toggle">
+        <span class="mode-label">Governance Mode</span>
+        <div class="toggle-row">
+          <button class="mode-btn" [class.mode-active]="enforcementMode" (click)="setMode(true)">⚡ Enforce</button>
+          <button class="mode-btn" [class.mode-shadow]="!enforcementMode" (click)="setMode(false)">👁 Shadow</button>
+        </div>
+        <p class="mode-note" *ngIf="!enforcementMode">Observes — logs near-misses, nothing blocked</p>
+        <p class="mode-note enforce" *ngIf="enforcementMode">Active — violations blocked before execution</p>
+      </div>
+    </div>
+
+    <div class="sidebar-footer"></div>
+  </aside>
+
+  <main class="main">
+    <div class="demo-banner" *ngIf="backendLive() === false">
+      <span class="demo-banner-tag">⚡ Showcase Mode</span>
+      <span class="demo-banner-text">
+        Scripted scenarios. Live Gemma 4 + openFDA runs locally —
+        <a href="https://github.com/dimaggi-ai/health-tool-guard" target="_blank" rel="noopener">GitHub repo</a>.
+        Submission video walks through the live system.
+      </span>
+    </div>
+    <div class="mobile-topbar">
+      <span class="mobile-brand">DIMAGGI Tool Guard</span>
+      <div class="mobile-mode-toggle">
+        <button class="mode-btn-sm" [class.mode-active]="enforcementMode" (click)="setMode(true)">⚡</button>
+        <button class="mode-btn-sm" [class.mode-shadow]="!enforcementMode" (click)="setMode(false)">👁</button>
+      </div>
+    </div>
+    <router-outlet />
+  </main>
+</div>

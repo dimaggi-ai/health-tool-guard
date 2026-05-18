@@ -1,0 +1,13 @@
+policy:
+  name: exfiltration-guard
+  version: "1.0"
+  category: security
+  priority: 290
+  evaluation_path: deterministic
+  description: "Block large data transfers to external destinations"
+  match:
+    condition: "destination.is_external == true AND payload.size_bytes > max_bytes"
+  limits:
+    max_bytes: 10240
+  action: DENY
+  message: "Payload size {size} exceeds exfiltration limit {max_bytes} for external destination."

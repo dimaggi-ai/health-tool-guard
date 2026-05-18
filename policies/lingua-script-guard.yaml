@@ -1,0 +1,18 @@
+policy:
+  name: lingua-script-guard
+  version: "1.0"
+  category: lingua
+  priority: 190
+  evaluation_path: deterministic
+  description: "Detect unsupported Unicode scripts and escalate honestly"
+  evidence:
+    - "PMC11729812 (2025): AI accuracy for under-resourced languages drops to 36-76%"
+    - "WHO AI Ethics (2021) Principle 5: inclusiveness requires honest escalation"
+  supported_scripts:
+    - Latin
+    - Devanagari
+    - Arabic
+    - Bengali
+    - Ethiopic
+  unsupported_action: ESCALATE
+  action: FLAG

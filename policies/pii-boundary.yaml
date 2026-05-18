@@ -1,0 +1,18 @@
+policy:
+  name: pii-boundary
+  version: "1.0"
+  category: clinical
+  priority: 90
+  evaluation_path: deterministic
+  description: "Redact protected health information before external transmission"
+  evidence:
+    - "HIPAA 45 CFR 164.502(b): minimum necessary standard"
+    - "GDPR Article 9(1): health data is a special category"
+  match:
+    condition: "destination.is_external == true"
+    parameters_contain:
+      pii_fields: [patient_name, dob, id_number, mrn, address]
+  action: REDACT_AND_CONTINUE
+  redaction:
+    strategy: schema_driven
+    replacement: "[REDACTED]"

@@ -1,0 +1,14 @@
+policy:
+  name: rate-governor
+  version: "1.0"
+  category: security
+  priority: 300
+  evaluation_path: deterministic
+  description: "Prevent tool call flooding — rate limit per agent per window"
+  match:
+    condition: "agent.calls_in_window > max_calls_per_window"
+  limits:
+    window_seconds: 60
+    max_calls_per_window: 100
+  action: DENY
+  message: "Rate limit exceeded: {calls} calls in {window}s window."

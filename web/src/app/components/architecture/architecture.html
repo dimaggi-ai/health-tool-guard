@@ -1,0 +1,170 @@
+<div class="arch-wrap">
+
+  <header class="arch-header">
+    <h1>Architecture</h1>
+    <p class="arch-sub">
+      Tool Guard intercepts every AI agent tool call <strong>before execution</strong>.
+      Powered by Gemma 4 — open weights, runs server-side and on-device.
+    </p>
+  </header>
+
+  <!-- ── Top-level flow diagram ─────────────────────────────────────── -->
+  <section class="arch-section">
+    <h2 class="arch-h2">1 · Request Flow</h2>
+    <div class="flow-diagram">
+      <div class="flow-node node-agent">
+        <div class="node-icon">🤖</div>
+        <div class="node-title">AI Agent</div>
+        <div class="node-sub">Clinical triage agent<br>(any framework)</div>
+      </div>
+
+      <div class="flow-arrow">
+        <div class="arrow-label">proposes tool call</div>
+        <div class="arrow-line">→</div>
+      </div>
+
+      <div class="flow-node node-guard">
+        <div class="node-icon">⊘</div>
+        <div class="node-title">Tool Guard</div>
+        <div class="node-sub">Runtime policy firewall<br>BEFORE execution</div>
+        <div class="node-detail">
+          <div class="detail-row"><span class="detail-tag det">DET</span> Rule layer · &lt;15ms · no model</div>
+          <div class="detail-row"><span class="detail-tag hyb">HYB</span> Gemma 4 · 700–3000ms · semantic reasoning</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">
+        <div class="arrow-label">approved ✓ / blocked ✕</div>
+        <div class="arrow-line">→</div>
+      </div>
+
+      <div class="flow-node node-world">
+        <div class="node-icon">🌐</div>
+        <div class="node-title">World</div>
+        <div class="node-sub">Hospital EMR, Pharmacy,<br>External APIs, Email…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Two-layer evaluator ────────────────────────────────────────── -->
+  <section class="arch-section">
+    <h2 class="arch-h2">2 · Two-layer Evaluator</h2>
+    <div class="layer-grid">
+
+      <div class="layer-card layer-det">
+        <div class="layer-header">⚡ Deterministic Layer</div>
+        <div class="layer-meta">Pure Python · No LLM · &lt;15ms</div>
+        <div class="layer-policies">
+          <div class="pol">🔒 <code>clinical-scope-lock</code> — only authorised tools</div>
+          <div class="pol">🩹 <code>pii-boundary</code> — REDACT PHI before external calls</div>
+          <div class="pol">⚖ <code>confidence-gate</code> — escalate &lt;0.70</div>
+          <div class="pol">🌍 <code>lingua-language-match</code> — output lang must match input</div>
+          <div class="pol">🔤 <code>lingua-script-guard</code> — Unicode block validation</div>
+          <div class="pol">🚫 <code>no-public-actions</code> — block send_email, post_*, etc.</div>
+        </div>
+      </div>
+
+      <div class="layer-card layer-hyb">
+        <div class="layer-header">🧠 Hybrid Layer (Gemma 4)</div>
+        <div class="layer-meta">gemma4:e4b via Ollama · think:false · 200–500 tokens</div>
+        <div class="layer-policies">
+          <div class="pol">💊 <code>contraindication-check</code> — drug-allergy, drug-drug</div>
+          <div class="pol">📋 <code>draft-only-mode</code> — autonomous action detection</div>
+          <div class="pol">📚 <code>lingua-terminology-lock</code> — target-language clinical terms</div>
+        </div>
+        <div class="layer-grounding">
+          <strong>Live grounding:</strong>
+          <span class="grounding-pill">📡 openFDA SPL</span>
+          <span class="grounding-pill">📚 PubMed</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Audit chain ─────────────────────────────────────────────────── -->
+  <section class="arch-section">
+    <h2 class="arch-h2">3 · Tamper-Evident Audit Chain</h2>
+    <div class="audit-row">
+      <div class="audit-box">
+        <div class="audit-step">Decision → JSON record</div>
+        <div class="audit-tech">&#123;tool, params, decision, policy, latency, ts&#125;</div>
+      </div>
+      <div class="audit-arrow">→</div>
+      <div class="audit-box">
+        <div class="audit-step">HMAC-SHA256 sign</div>
+        <div class="audit-tech">key: tool-guard server secret</div>
+      </div>
+      <div class="audit-arrow">→</div>
+      <div class="audit-box">
+        <div class="audit-step">SHA-256 chain</div>
+        <div class="audit-tech">hash(prev_hash + record)</div>
+      </div>
+      <div class="audit-arrow">→</div>
+      <div class="audit-box">
+        <div class="audit-step">Export JSONL</div>
+        <div class="audit-tech">re-verifiable by auditor</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Deployment tiers ────────────────────────────────────────────── -->
+  <section class="arch-section">
+    <h2 class="arch-h2">4 · Deployment Tiers — Same Gemma 4</h2>
+    <div class="tier-grid">
+
+      <div class="tier-card">
+        <div class="tier-icon">🖥</div>
+        <div class="tier-title">Server</div>
+        <div class="tier-meta">FastAPI + Ollama gemma4:e4b</div>
+        <div class="tier-detail">
+          <div>Full Tool Guard service</div>
+          <div>openFDA via REST API</div>
+          <div>HMAC signing server-side</div>
+          <div>Real SHA-256 audit chain</div>
+        </div>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-icon">📱</div>
+        <div class="tier-title">Edge / Phone</div>
+        <div class="tier-meta">Gemma 4 on-device</div>
+        <div class="tier-detail">
+          <div>Same model family</div>
+          <div>FDA labels in prompt</div>
+          <div>No internet required</div>
+          <div>CHW workflow demo →</div>
+        </div>
+      </div>
+
+      <div class="tier-card">
+        <div class="tier-icon">🔗</div>
+        <div class="tier-title">Agent Frameworks</div>
+        <div class="tier-meta">Drop-in middleware</div>
+        <div class="tier-detail">
+          <div>MCP servers</div>
+          <div>LangChain agents</div>
+          <div>Direct closed-frontier tool calls</div>
+          <div>One gate, any agent</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Tech stack ──────────────────────────────────────────────────── -->
+  <section class="arch-section">
+    <h2 class="arch-h2">5 · Stack</h2>
+    <div class="stack-grid">
+      <div class="stack-item"><span class="stack-k">Model</span>          <span class="stack-v">gemma4:e4b (Ollama)</span></div>
+      <div class="stack-item"><span class="stack-k">Reasoning mode</span> <span class="stack-v">think:false (token-efficient)</span></div>
+      <div class="stack-item"><span class="stack-k">Backend</span>        <span class="stack-v">FastAPI + httpx</span></div>
+      <div class="stack-item"><span class="stack-k">Grounding</span>      <span class="stack-v">openFDA + PubMed (REST APIs)</span></div>
+      <div class="stack-item"><span class="stack-k">Crypto</span>         <span class="stack-v">SHA-256 + HMAC (Web Crypto + pure-JS fallback)</span></div>
+      <div class="stack-item"><span class="stack-k">Frontend</span>       <span class="stack-v">Angular 21 standalone components</span></div>
+      <div class="stack-item"><span class="stack-k">Audit format</span>   <span class="stack-v">JSONL · re-verifiable chain</span></div>
+      <div class="stack-item"><span class="stack-k">Deploy</span>         <span class="stack-v">Docker Compose · nginx proxy</span></div>
+    </div>
+  </section>
+
+</div>

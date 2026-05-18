@@ -1,0 +1,194 @@
+<div class="overview-wrap">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tracks">
+      <span class="track track-primary">Safety &amp; Trust</span>
+      <span class="track">Digital Equity</span>
+      <span class="track">Health &amp; Sciences</span>
+      <span class="track-sep">·</span>
+      <span class="track-event">DIMAGGI Tool Guard · Clinical AI Governance</span>
+    </div>
+    <h1 class="hero-title">AI governance infrastructure.<br>Before the agent acts.</h1>
+    <p class="hero-body">
+      Runtime policy enforcement, tamper-evident audit, and language safety for any AI deployment —
+      in 8 languages, across every geography, before the action executes.
+      From Kampala to Cairo. From Manila to Mumbai.
+      Tool Guard intercepts every tool call, evaluates it against configurable policies using
+      deterministic rules and Gemma 4 deep reasoning, and records every decision in a
+      cryptographic chain that cannot be altered.
+    </p>
+    <div class="hero-stats">
+      <div class="hstat"><span class="hstat-val">&lt;12ms</span><span class="hstat-lbl">Deterministic governance</span></div>
+      <div class="hstat"><span class="hstat-val">&lt;800ms</span><span class="hstat-lbl">Gemma 4 reasoning</span></div>
+      <div class="hstat"><span class="hstat-val">8</span><span class="hstat-lbl">Languages governed</span></div>
+      <div class="hstat"><span class="hstat-val">5</span><span class="hstat-lbl">Scripts · 4 continents</span></div>
+      <div class="hstat hstat-highlight"><span class="hstat-val">$87,500</span><span class="hstat-lbl">Near-miss value (30-day demo)</span></div>
+    </div>
+    <div class="hero-actions">
+      <a routerLink="/demo" class="btn-primary">▶ Run the Live Demo</a>
+      <a routerLink="/audit" class="btn-secondary">⛓ View Audit Chain</a>
+    </div>
+  </div>
+
+  <!-- Problem / Answer -->
+  <div class="two-col">
+    <div class="section-card problem-card">
+      <div class="card-eyebrow">The Problem</div>
+      <h2 class="card-title">AI agents act without governance</h2>
+      <p class="card-body">
+        AI agents are making autonomous decisions in critical environments — transferring funds,
+        triaging patients, grading students. Every action is a tool call. Most tool calls execute
+        with nothing between the agent's decision and the real-world consequence.
+      </p>
+      <p class="card-body">
+        The gap is not intelligence. The models are capable. The gap is <strong>trust</strong>.
+        Without a governance layer, organisations either block adoption entirely or keep agents
+        trapped in low-value pilot mode.
+      </p>
+    </div>
+    <div class="section-card answer-card">
+      <div class="card-eyebrow">The Answer</div>
+      <h2 class="card-title">Tool Guard: pre-execution policy enforcement</h2>
+      <p class="card-body">
+        Tool Guard intercepts every tool call, evaluates it against configurable governance rules
+        using a hybrid engine — deterministic rules for speed, Gemma 4 model-assisted reasoning
+        for ambiguous cases — makes a decision, generates a human-readable explanation, and records
+        every step in a tamper-evident audit chain.
+      </p>
+      <div class="outcome-pills">
+        <span class="outcome allow">✓ ALLOW</span>
+        <span class="outcome deny">✕ DENY</span>
+        <span class="outcome redact">⬡ REDACT &amp; CONTINUE</span>
+        <span class="outcome escalate">↑ ESCALATE</span>
+        <span class="outcome flag">⚑ FLAG</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="section-card">
+    <div class="card-eyebrow">How It Works</div>
+    <h2 class="card-title">The Tool Guard pipeline</h2>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">01</div>
+        <div class="pipe-title">Intercept</div>
+        <div class="pipe-desc">SDK wraps every agent tool call into an ActionEnvelope with agent identity, parameters, timestamps, and modality metadata.</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">02</div>
+        <div class="pipe-title">Evaluate</div>
+        <div class="pipe-desc">Fast deterministic rules run first (&lt;12ms). Ambiguous cases route to Gemma 4 deep reasoning with full policy context (&lt;800ms).</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">03</div>
+        <div class="pipe-title">Decide</div>
+        <div class="pipe-desc">ALLOW, DENY, REDACT-AND-CONTINUE, ESCALATE, or FLAG. Redaction strips PII fields and lets the sanitised action proceed.</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">04</div>
+        <div class="pipe-title">Explain</div>
+        <div class="pipe-desc">Gemma 4 generates a human-readable explanation for every decision — what happened, why, which policy mattered.</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-num">05</div>
+        <div class="pipe-title">Audit</div>
+        <div class="pipe-desc">SHA-256 hash chain + HMAC signing. Every decision is immutably recorded and verifiable offline via CLI.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitive differentiation -->
+  <div class="section-card">
+    <div class="card-eyebrow">Competitive Position</div>
+    <h2 class="card-title">The gap Tool Guard uniquely fills</h2>
+    <div class="comp-table-wrap">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th class="us">Tool Guard</th>
+            <th>Guardrails AI</th>
+            <th>NeMo G.</th>
+            <th>LlamaFirewall</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Pre-execution enforcement</td><td class="us yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="no">✗</td></tr>
+          <tr><td>Edge / on-device deployment</td><td class="us yes">✓</td><td class="no">✗</td><td class="partial">~</td><td class="no">✗</td></tr>
+          <tr><td>Multilingual policy enforcement</td><td class="us yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Multimodal intake governance</td><td class="us yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Hybrid evaluation (rules + LLM)</td><td class="us yes">✓</td><td class="no">✗</td><td class="partial">~</td><td class="no">✗</td></tr>
+          <tr><td>Redact-and-continue</td><td class="us yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+          <tr><td>Human-readable explanations</td><td class="us yes">✓</td><td class="no">✗</td><td class="partial">~</td><td class="no">✗</td></tr>
+          <tr><td>Tamper-evident audit chain</td><td class="us yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="comp-note">No competitor occupies the intersection of edge-deployable · multilingual · multimodal · pre-execution governance with hybrid evaluation and tamper-evident audit.</p>
+  </div>
+
+  <!-- Demo navigation -->
+  <div class="demo-nav-section">
+    <div class="card-eyebrow" style="margin-bottom:14px">Explore the Demo</div>
+    <div class="demo-nav-grid">
+      <a routerLink="/demo" class="demo-nav-card">
+        <div class="dnc-icon">▶</div>
+        <div class="dnc-title">Live Demo</div>
+        <div class="dnc-desc">12 scenarios across clinical, linguistic, and cardiology domains. Run live with Gemma 4 or replay pre-evaluated results.</div>
+      </a>
+      <a routerLink="/policies" class="demo-nav-card">
+        <div class="dnc-icon">⬡</div>
+        <div class="dnc-title">Policy Dashboard</div>
+        <div class="dnc-desc">KPI metrics, language distribution across 8 languages and 5 scripts, policy match breakdown, near-miss value tracking, and real-time decision feed.</div>
+      </a>
+      <a routerLink="/audit" class="demo-nav-card">
+        <div class="dnc-icon">⛓</div>
+        <div class="dnc-title">Audit Chain</div>
+        <div class="dnc-desc">SHA-256 hash-chained decision records with HMAC signatures. Tamper-evident and offline-verifiable.</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Product suite -->
+  <div class="suite-section">
+    <div class="card-eyebrow" style="margin-bottom:12px">Tool Guard Platform — Available Configurations</div>
+    <div class="suite-grid">
+      <div class="suite-card suite-active">
+        <div class="suite-name">Tool Guard Clinical</div>
+        <div class="suite-desc">Healthcare · triage · PII · contraindication · multilingual</div>
+        <span class="suite-badge">This demo</span>
+      </div>
+      <div class="suite-card">
+        <div class="suite-name">Tool Guard Finance</div>
+        <div class="suite-desc">MiFID II · high-value transfers · trading · PCI-DSS audit</div>
+      </div>
+      <div class="suite-card">
+        <div class="suite-name">Tool Guard Edge</div>
+        <div class="suite-desc">On-device · Gemma 4 E2B/E4B · offline chain · sync-on-connect</div>
+      </div>
+      <div class="suite-card">
+        <div class="suite-name">Tool Guard Lingua</div>
+        <div class="suite-desc">8 languages · 5 scripts · reading-level gate · terminology lock</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div class="stack-bar">
+    <span class="stack-label">Built on</span>
+    <span class="stack-pill">Gemma 4 E4B</span>
+    <span class="stack-pill">Ollama</span>
+    <span class="stack-pill">FastAPI</span>
+    <span class="stack-pill">Web Crypto API</span>
+    <span class="stack-pill">YAML policy engine</span>
+    <span class="stack-pill">HIPAA / GDPR compliant</span>
+    <span class="stack-pill">Edge-deployed</span>
+  </div>
+
+</div>

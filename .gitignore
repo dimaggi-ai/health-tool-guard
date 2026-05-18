@@ -1,0 +1,39 @@
+# Allow only Tool Guard submission files
+
+# Ignore everything by default
+/*
+
+# Allow these folders
+!web/
+!backend/
+!policies/
+!sdk/
+!verifier/
+!tests/
+!notebook/
+!docker/
+
+# Allow root docs
+!README.md
+!LICENSE
+!NOTICE
+!SETUP.md
+!POLICIES.md
+!AUDIT.md
+!TECHNICAL_REPORT.md
+!AGENTS.md
+!.gitignore
+!qa_validate.py
+
+# Within allowed folders, exclude build artifacts + internal dev guidance
+web/node_modules/
+web/dist/
+web/.angular/
+web/package-lock.json
+web/.gitignore
+web/public/
+web/*.md
+
+# Python artifacts
+__pycache__/
+*.pyc

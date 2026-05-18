@@ -1,0 +1,64 @@
+.arch-wrap { max-width: 1200px; margin: 0 auto; padding: 24px; color: #0f172a; }
+.arch-header { margin-bottom: 32px; }
+.arch-header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 8px; }
+.arch-sub { color: #475569; font-size: 0.95rem; line-height: 1.5; }
+.arch-section { margin-bottom: 36px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; }
+.arch-h2 { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+
+/* Flow diagram */
+.flow-diagram { display: flex; align-items: stretch; gap: 12px; flex-wrap: nowrap; overflow-x: auto; padding: 16px 0; }
+.flow-node { flex: 1; min-width: 200px; padding: 18px; border-radius: 10px; border: 2px solid; text-align: center; }
+.node-agent { background: #f1f5f9; border-color: #cbd5e1; }
+.node-guard { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; }
+.node-world { background: #ecfdf5; border-color: #6ee7b7; }
+.node-icon { font-size: 2rem; margin-bottom: 6px; }
+.node-title { font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
+.node-sub { font-size: 0.75rem; color: #475569; line-height: 1.4; }
+.node-detail { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #b45309; text-align: left; }
+.detail-row { font-size: 0.7rem; color: #78350f; margin: 4px 0; }
+.detail-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 0.62rem; margin-right: 4px; }
+.detail-tag.det { background: #dbeafe; color: #1e40af; }
+.detail-tag.hyb { background: #fce7f3; color: #9d174d; }
+.flow-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 100px; }
+.arrow-label { font-size: 0.65rem; color: #64748b; margin-bottom: 4px; font-style: italic; }
+.arrow-line { font-size: 1.5rem; color: #94a3b8; }
+
+/* Layer grid */
+.layer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.layer-card { padding: 18px; border-radius: 10px; }
+.layer-det { background: #eff6ff; border: 1px solid #93c5fd; }
+.layer-hyb { background: #fdf4ff; border: 1px solid #d8b4fe; }
+.layer-header { font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; }
+.layer-det .layer-header { color: #1e40af; }
+.layer-hyb .layer-header { color: #86198f; }
+.layer-meta { font-size: 0.7rem; color: #64748b; font-family: ui-monospace, monospace; margin-bottom: 12px; }
+.layer-policies { display: flex; flex-direction: column; gap: 6px; }
+.pol { font-size: 0.8rem; color: #1e293b; padding: 6px 10px; background: #fff; border-radius: 6px; }
+.pol code { font-family: ui-monospace, monospace; font-size: 0.74rem; color: #be185d; }
+.layer-grounding { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #d8b4fe; font-size: 0.78rem; color: #86198f; }
+.grounding-pill { display: inline-block; padding: 3px 10px; background: #fff; border: 1px solid #d8b4fe; border-radius: 999px; margin: 0 4px; font-family: ui-monospace, monospace; font-size: 0.7rem; color: #86198f; }
+
+/* Audit row */
+.audit-row { display: flex; align-items: stretch; gap: 8px; flex-wrap: nowrap; overflow-x: auto; }
+.audit-box { flex: 1; min-width: 160px; padding: 14px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; }
+.audit-step { font-weight: 700; font-size: 0.82rem; color: #1e293b; margin-bottom: 6px; }
+.audit-tech { font-family: ui-monospace, monospace; font-size: 0.7rem; color: #64748b; }
+.audit-arrow { display: flex; align-items: center; font-size: 1.3rem; color: #94a3b8; }
+
+/* Tier grid */
+.tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tier-card { padding: 18px; background: #fafafa; border: 1px solid #e2e8f0; border-radius: 10px; }
+.tier-icon { font-size: 1.8rem; margin-bottom: 6px; }
+.tier-title { font-weight: 800; font-size: 1rem; color: #1e293b; }
+.tier-meta { font-size: 0.7rem; color: #64748b; font-family: ui-monospace, monospace; margin-bottom: 12px; }
+.tier-detail { display: flex; flex-direction: column; gap: 4px; font-size: 0.78rem; color: #334155; }
+
+/* Stack */
+.stack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+.stack-item { display: flex; justify-content: space-between; padding: 8px 12px; background: #f8fafc; border-radius: 6px; font-size: 0.82rem; }
+.stack-k { color: #64748b; font-weight: 600; }
+.stack-v { color: #1e293b; font-family: ui-monospace, monospace; }
+
+@media (max-width: 768px) {
+  .layer-grid, .tier-grid, .stack-grid { grid-template-columns: 1fr; }
+}

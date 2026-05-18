@@ -1,0 +1,19 @@
+policy:
+  name: clinical-scope-lock
+  version: "1.0"
+  category: clinical
+  priority: 100
+  evaluation_path: deterministic
+  description: "Deny tool calls outside the agent's validated triage scope"
+  evidence:
+    - "FDA Warning Letter, Exer Labs Inc. (Feb 10 2025): AI operating beyond cleared scope"
+  match:
+    tool_name:
+      not_in:
+        - classify_symptoms
+        - assess_urgency
+        - recommend_care_pathway
+        - generate_triage_summary
+        - send_referral_summary
+  action: DENY
+  message: "Agent attempted {tool_name}, outside validated triage scope."

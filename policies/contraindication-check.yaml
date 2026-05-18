@@ -1,0 +1,18 @@
+policy:
+  name: contraindication-check
+  version: "1.0"
+  category: clinical
+  priority: 80
+  evaluation_path: hybrid
+  description: "Flag recommendations conflicting with patient allergies or conditions"
+  evidence:
+    - "FDA Naproxen SPL Section 4: NSAIDs contraindicated in aspirin-sensitive patients"
+    - "FDA Ibuprofen OTC label: severe allergic reaction risk in aspirin-allergic patients"
+    - "PMC12712589 (2025): closed-frontier LLM drug-interaction sensitivity only 46.83%"
+  deep_evaluation:
+    model: gemma4:e4b
+    context: clinical_guidelines_fda_who.txt
+    confidence_threshold: 0.6
+    response_format: json
+  action: FLAG
+  escalate_on_emergency: true

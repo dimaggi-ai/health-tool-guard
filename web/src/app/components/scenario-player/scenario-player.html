@@ -1,0 +1,358 @@
+<div class="player-wrap">
+
+  <!-- Gemma 4 status + provenance tagline -->
+  <div class="status-bar">
+    <span class="status-dot-wrap">
+      <span class="status-dot" [class.live]="backendLive() === true" [class.offline]="backendLive() === false" [class.checking]="backendLive() === null"></span>
+      <span class="status-text">
+        <span *ngIf="backendLive() === true && gemmaLoaded()">Gemma 4 E4B — live</span>
+        <span *ngIf="backendLive() === true && !gemmaLoaded() && !modelLoading()">Gemma 4 ready</span>
+        <span *ngIf="modelLoading()">Loading Gemma 4…</span>
+        <span *ngIf="backendLive() === false">⚠ Deep eval unavailable — pre-computed results</span>
+        <span *ngIf="backendLive() === null">Connecting…</span>
+      </span>
+    </span>
+    <span class="status-tagline" title="Open weights — runs server-side (this dashboard) and on-device (the phone demo). No data leaves your infrastructure.">
+      open weights · server + edge
+    </span>
+    <span class="build-id" title="If this string is missing or different, your browser is showing a cached old version. Hard-refresh: Ctrl+Shift+R">
+      build: arch-showcase-v6 · 2026-05-17
+    </span>
+    <button *ngIf="backendLive() === true && !gemmaLoaded() && !modelLoading()"
+      class="load-btn" (click)="loadGemma()">⚡ Load</button>
+    <button *ngIf="backendLive() === true && gemmaLoaded() && !modelLoading()"
+      class="load-btn load-btn--unload" (click)="unloadGemma()">Unload</button>
+  </div>
+
+  <!-- Shadow mode banner -->
+  <div class="shadow-banner" *ngIf="shadowMode">
+    <span>👁 <strong>Shadow Mode</strong> — violations logged but not blocked</span>
+    <span *ngIf="nearMissCount > 0" class="shadow-near-miss">{{ nearMissCount }} near-miss · ${{ nearMissValue | number }} averted</span>
+  </div>
+
+  <!-- Category + scenario selector (replaces 12 tabs) -->
+  <div class="selector-wrap">
+    <div class="category-row">
+      <button *ngFor="let cat of categories; let i = index"
+        class="cat-btn" [class.active]="activeCategory() === i"
+        (click)="selectCategory(i)">{{ cat.label }}</button>
+    </div>
+    <div class="scenario-row" *ngIf="!isAgentTab()">
+      <button *ngFor="let s of scenarios; let i = index"
+        class="scen-btn" [class.active]="activeScenarioIdx() === i"
+        (click)="selectScenario(i)">{{ s.title }}</button>
+    </div>
+  </div>
+
+  <!-- Live Agent tab body -->
+  <div class="agent-body" *ngIf="isAgentTab()">
+    <div class="agent-input-panel">
+      <div class="agent-header">
+        <span class="agent-icon">🤖</span>
+        <span>Describe a patient — Gemma 4 acts as the clinical agent, Tool Guard intercepts</span>
+      </div>
+      <textarea class="agent-textarea" placeholder="e.g. Female, 38, Cairo — chest pain 2 days. Allergies: aspirin, penicillin. No current medications." rows="4" (input)="agentPatient.set($any($event.target).value)"></textarea>
+      <div class="agent-controls">
+        <select class="agent-lang-select" (change)="agentLanguage.set($any($event.target).value)">
+          <option value="en">English</option>
+          <option value="ar">Arabic (ar)</option>
+          <option value="sw">Swahili (sw)</option>
+          <option value="lg">Luganda (lg)</option>
+          <option value="hi">Hindi (hi)</option>
+          <option value="bn">Bengali (bn)</option>
+        </select>
+        <button class="play-btn" (click)="runAgent()" [disabled]="agentRunning() || !agentPatient()">
+          {{ agentRunning() ? '🤖 Agent thinking…' : '▶ Run Live Agent' }}
+        </button>
+      </div>
+
+      <!-- Agent results -->
+      <div *ngIf="agentResult() as r" class="agent-results">
+        <div class="agent-reasoning-card">
+          <div class="agent-card-label">🧠 Agent reasoning (Gemma 4 as agent)</div>
+          <div class="agent-reasoning-text">{{ r.agent_reasoning }}</div>
+        </div>
+        <div *ngFor="let tc of r.tool_calls; let i = index" class="call-card visible" [ngClass]="decisionClass(tc.decision)">
+          <div class="call-header">
+            <span class="decision-badge" [ngClass]="decisionClass(tc.decision)">{{ decisionIcon(tc.decision) }} {{ tc.decision }}</span>
+            <span class="tool-name">{{ tc.tool }}</span>
+            <span class="eval-path" [class.hybrid]="tc.eval_path === 'HYBRID'">{{ tc.eval_path === 'HYBRID' ? '🧠 AI' : '⚡ Rule' }}</span>
+            <span class="latency-small">{{ tc.latency_ms }}ms</span>
+          </div>
+          <div class="call-detail" style="display:flex">
+            <div class="detail-verdict" [innerHTML]="highlight(tc.explanation)"></div>
+            <div class="audit-record-inline">
+              <div class="ari-header">⛓ Audit record</div>
+              <div class="ari-grid">
+                <span class="ari-k">policy</span><span class="ari-v">{{ tc.policy_triggered }}</span>
+                <span class="ari-k">eval path</span><span class="ari-v">{{ tc.eval_path }}</span>
+                <span class="ari-k">latency</span><span class="ari-v ari-highlight">{{ tc.latency_ms }}ms</span>
+                <ng-container *ngIf="tc.tokens_used > 0">
+                  <span class="ari-k">tokens</span><span class="ari-v ari-highlight">{{ tc.tokens_used }}</span>
+                </ng-container>
+                <span class="ari-k">hash</span><span class="ari-v ari-hash">{{ tc.hash.slice(0, 32) }}…</span>
+                <span class="ari-k">hmac</span><span class="ari-v ari-hash">{{ tc.hmac.slice(0, 32) }}…</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="agent-summary">
+          🤖 Agent proposed {{ r.tool_calls.length }} tool call(s) ·
+          {{ r.near_miss_count }} intercepted ·
+          {{ r.total_latency_ms }}ms total
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo body -->
+  <div class="player-body" *ngIf="!isAgentTab()">
+
+    <!-- Left: context (minimal) -->
+    <div class="input-panel">
+      <div class="scenario-header">
+        <span class="lang-badge">{{ langLabel(currentStep.language) }}</span>
+        <span class="modality-badge">
+          {{ currentStep.inputType === 'multimodal' ? '📎 Multimodal' :
+             currentStep.inputType === 'audio' ? '🎤 Audio' :
+             currentStep.inputType === 'image' ? '🖼 Image' : '📝 Text' }}
+        </span>
+      </div>
+      <div class="scenario-subtitle">{{ activeScenario().subtitle }}</div>
+      <p class="patient-line">👤 {{ activeScenario().patient }}</p>
+      <div class="input-preview">{{ currentStep.inputPreview }}</div>
+      <!-- Gemma 4 live transcription — appears after Run is pressed on audio scenarios -->
+      <div class="gemma-transcription" *ngIf="transcription()">
+        <div class="gemma-transcription-header">
+          <span class="gemma-transcription-label">🧠 Gemma 4 · transcribed {{ langLabel(currentStep.language) }} → en</span>
+          <span class="gemma-transcription-tokens" *ngIf="transcriptionTokens() > 0">{{ transcriptionTokens() }} tokens</span>
+        </div>
+        <div class="gemma-transcription-text">"{{ transcription() }}"</div>
+      </div>
+      <div class="play-actions">
+        <button class="play-btn" (click)="play()" [disabled]="playing()">
+          <span *ngIf="!playing()">{{ nextCallLabel() }}</span>
+          <span *ngIf="playing()">Evaluating…</span>
+        </button>
+        <button class="reset-btn" *ngIf="currentCallIdx() > 0 || playing()" (click)="reset()" title="Clear and start over">↺</button>
+      </div>
+      <details class="source-citation" open>
+        <summary>📖 Sources</summary>
+        <div [innerHTML]="linkifySource(activeScenario().source)"></div>
+      </details>
+    </div>
+
+    <!-- Right: decisions -->
+    <div class="decisions-panel">
+      <div class="panel-header">
+        <span class="panel-label">Tool Guard Decisions</span>
+        <span class="call-count" *ngIf="playing() || done()">
+          {{ revealedCalls().size }} / {{ totalCalls() }} evaluated
+        </span>
+      </div>
+
+      <!-- Gate-flow strip: makes the BEFORE-execution differentiator visual -->
+      <div class="gate-flow" [class.gate-active]="anyInterceptDecision()">
+        <span class="gate-node gate-agent">🤖 Agent</span>
+        <span class="gate-arrow">→</span>
+        <span class="gate-node gate-toolguard"
+          [class.gate-blocked]="anyInterceptDecision()">
+          ⊘ Tool Guard
+          <small *ngIf="!anyInterceptDecision()">pre-execution gate</small>
+          <small *ngIf="anyInterceptDecision()" class="gate-blocked-label">BLOCKED</small>
+        </span>
+        <span class="gate-arrow" [class.gate-severed]="anyInterceptDecision()">→</span>
+        <span class="gate-node gate-world"
+          [class.gate-world-blocked]="anyInterceptDecision()">🌐 World</span>
+      </div>
+
+      <div class="empty-state" *ngIf="revealedCalls().size === 0 && !playing()">
+        <div class="empty-icon">⬡</div>
+        <p>Press <strong>Run Tool Guard</strong> to intercept this agent's tool calls.</p>
+      </div>
+
+      <div class="call-list">
+        <!-- In-flight HYBRID placeholder -->
+        <div *ngIf="evaluatingCallId()" class="call-card hybrid-thinking visible">
+          <div class="call-header">
+            <div class="ring-spinner"></div>
+            <span class="tool-name thinking-label">🧠 Gemma 4 reasoning over patient context…</span>
+            <span class="eval-path hybrid">AI reasoning</span>
+          </div>
+        </div>
+
+        <!-- Revealed decision cards -->
+        <div *ngFor="let call of currentStep.toolCalls"
+          class="call-card" [class.visible]="isRevealed(call.id)"
+          [ngClass]="decisionClass(getResult(call.id)?.decision ?? call.decision)">
+
+          <div class="call-header" (click)="toggleExpand(call.id)">
+            <span class="decision-badge"
+              [ngClass]="decisionClass(shadowDecision(getResult(call.id)?.decision ?? call.decision))">
+              {{ decisionIcon(shadowDecision(getResult(call.id)?.decision ?? call.decision)) }}
+              {{ shadowDecision(getResult(call.id)?.decision ?? call.decision) }}
+            </span>
+            <span class="near-miss-badge" *ngIf="isShadowNearMiss(getResult(call.id)?.decision ?? call.decision)">
+              ⚠ Near-miss
+            </span>
+            <span class="tool-name">{{ call.tool }}</span>
+            <span class="eval-path" [class.hybrid]="(getResult(call.id)?.eval_path ?? call.evalPath) === 'HYBRID'">
+              {{ (getResult(call.id)?.eval_path ?? call.evalPath) === 'HYBRID' ? '🧠 AI reasoning' : '⚡ Rule match' }}
+            </span>
+            <button class="call-replay-btn"
+              *ngIf="isRevealed(call.id) && !playing()"
+              (click)="replayCall(call); $event.stopPropagation()"
+              title="Re-run only this check (Gemma 4 reasons over patient context again)">↻ Replay this check</button>
+            <span class="expand-icon">{{ isExpanded(call.id) ? '↑ hide' : '↓ details' }}</span>
+          </div>
+
+          <!-- AI agent proposal — always visible (the thing Tool Guard intercepted) -->
+          <div class="agent-proposal" *ngIf="call.agentResponseEn">
+            <div class="agent-proposal-header">
+              <span class="agent-proposal-icon">🤖</span>
+              <span class="agent-proposal-label">AI agent proposed</span>
+              <span class="agent-proposal-tool">→ {{ call.tool }}()</span>
+              <span class="agent-proposal-blocked">⊘ intercepted by Tool Guard</span>
+            </div>
+            <div class="agent-proposal-body">"{{ call.agentResponseEn }}"</div>
+          </div>
+
+          <!-- Bypass button: simulates what would happen if this policy didn't fire.
+               Stays visible across re-plays; only disabled while a call is evaluating. -->
+          <div class="bypass-row" *ngIf="canBypass(call)">
+            <button class="bypass-btn" (click)="bypassAndAdvance()" [disabled]="playing()">
+              <span *ngIf="!playing()">⚠ Bypass this policy → see what Tool Guard catches next</span>
+              <span *ngIf="playing()">Evaluating next call…</span>
+            </button>
+            <span class="bypass-hint">Demo only — in production this policy would NOT be bypassable</span>
+          </div>
+
+          <div class="call-detail" *ngIf="isExpanded(call.id)">
+
+            <!-- Decision verdict -->
+            <div class="detail-verdict" [innerHTML]="highlight(getDisplayResult(call).explanation)"></div>
+
+            <!-- Patient-facing notice in their language -->
+            <div class="native-summary" *ngIf="call.explanation.nativeSummary">
+              <span class="native-flag">🌐 Patient-facing · {{ langLabel(currentStep.language) }}</span>
+              <span class="native-text">{{ call.explanation.nativeSummary }}</span>
+            </div>
+
+
+            <!-- Redaction diff -->
+            <div class="redact-diff" *ngIf="getDisplayResult(call).redacted_fields?.length">
+              <div class="redact-diff-header"><span class="redact-label">⬡ REDACT &amp; CONTINUE — field diff</span></div>
+              <div class="redact-diff-body">
+                <div class="redact-col redact-before">
+                  <div class="redact-col-label">Original</div>
+                  <div *ngFor="let f of getDisplayResult(call).redacted_fields" class="redact-field-row before">
+                    <span class="field-name">{{ f }}</span>
+                    <span class="field-val redacted-val">{{ f === 'patient_name' ? '"A.W."' : f === 'dob' ? '"1990-03-12"' : f === 'id_number' ? '"KE-8847291"' : '"[value]"' }}</span>
+                  </div>
+                </div>
+                <div class="redact-arrow-col">→</div>
+                <div class="redact-col redact-after">
+                  <div class="redact-col-label">Sanitised</div>
+                  <div *ngFor="let f of getDisplayResult(call).redacted_fields" class="redact-field-row after">
+                    <span class="field-name">{{ f }}</span><span class="field-val sanitized-val">[REDACTED]</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HITL for ESCALATE -->
+            <div class="hitl-panel" *ngIf="(getResult(call.id)?.decision ?? call.decision) === 'ESCALATE'">
+              <div class="hitl-header">
+                <span class="hitl-icon">👤</span>
+                <span class="hitl-title">Human Review Required</span>
+                <span class="hitl-status" *ngIf="!reviewOutcome(call.id)">⏳ Awaiting clinician</span>
+                <span class="hitl-status approved" *ngIf="reviewOutcome(call.id) === 'approved'">✓ Approved</span>
+                <span class="hitl-status denied"   *ngIf="reviewOutcome(call.id) === 'denied'">✕ Denied</span>
+              </div>
+              <div class="hitl-body">
+                <div class="hitl-actions" *ngIf="!reviewOutcome(call.id)">
+                  <button class="hitl-btn approve" (click)="reviewDecision(call.id, 'approved'); $event.stopPropagation()">✓ Approve</button>
+                  <button class="hitl-btn deny"    (click)="reviewDecision(call.id, 'denied');   $event.stopPropagation()">✕ Deny</button>
+                </div>
+                <div class="hitl-resolved" *ngIf="reviewOutcome(call.id)">
+                  Agent may {{ reviewOutcome(call.id) === 'approved' ? 'proceed' : 'not proceed — rejected by clinician' }}.
+                </div>
+              </div>
+            </div>
+
+            <!-- WHY HYBRID -->
+            <div class="tech-section" *ngIf="getDisplayResult(call).why_hybrid">
+              <div class="tech-label">🧠 Why Gemma 4 was needed</div>
+              <div class="tech-text why-hybrid-box">{{ getDisplayResult(call).why_hybrid }}</div>
+            </div>
+
+            <!-- LIVE openFDA fetch — visible proof of grounding -->
+            <div class="fda-sources" *ngIf="getResult(call.id)?.fda_sources?.length">
+              <span class="fda-label">📡 Live openFDA fetch:</span>
+              <span class="fda-pill" *ngFor="let s of getResult(call.id)?.fda_sources">
+                {{ s.drug }} · {{ s.chars }} chars
+              </span>
+              <a class="fda-link" href="https://api.fda.gov/drug/label.json" target="_blank">api.fda.gov ↗</a>
+            </div>
+
+            <!-- Clinical reasoning -->
+            <div class="tech-section">
+              <div class="tech-label">Clinical reasoning</div>
+              <div class="tech-text exp-reasoning">{{ getDisplayResult(call).reasoning }}</div>
+            </div>
+
+            <!-- ── AUDIT RECORD ───────────────────────────── -->
+            <div class="audit-record-inline" [class.ari-scripted]="getDisplayResult(call)._isScripted">
+              <div class="ari-header">
+                ⛓ Audit record — this decision
+                <span class="ari-scripted-badge" *ngIf="getDisplayResult(call)._isScripted">⚠ SCRIPTED (Gemma 4 offline)</span>
+              </div>
+              <div class="ari-grid">
+                <span class="ari-k">policy</span>
+                <span class="ari-v">{{ getDisplayResult(call).policy_triggered }}</span>
+
+                <span class="ari-k">eval path</span>
+                <span class="ari-v">{{ (getResult(call.id)?.eval_path ?? call.evalPath) === 'HYBRID' ? '🧠 Gemma 4 hybrid' : '⚡ deterministic' }}</span>
+
+                <span class="ari-k">latency</span>
+                <span class="ari-v ari-highlight">{{ getResult(call.id)?.latency_ms ?? call.latencyMs }}ms</span>
+
+                <ng-container *ngIf="(getResult(call.id)?.tokens_used ?? 0) > 0">
+                  <span class="ari-k">tokens</span>
+                  <span class="ari-v ari-highlight">{{ getResult(call.id)?.tokens_used }} Gemma 4 tokens</span>
+                </ng-container>
+
+                <span class="ari-k">modality</span>
+                <span class="ari-v">{{ currentStep.inputType }}</span>
+
+                <span class="ari-k">timestamp</span>
+                <span class="ari-v">{{ getDisplayResult(call).timestamp }}</span>
+
+                <span class="ari-k">SHA-256</span>
+                <span class="ari-v ari-hash">{{ getDisplayResult(call).hash }}</span>
+
+                <span class="ari-k">HMAC</span>
+                <span class="ari-v ari-hash">{{ getDisplayResult(call).hmac }}</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Post-run summary -->
+      <div class="play-summary" *ngIf="done()">
+        <div class="summary-counts">
+          <span class="sum-allow">✓ {{ allowCount }} allowed</span>
+          <span class="sum-intercept">⊘ {{ interceptCount }} intercepted</span>
+        </div>
+        <div class="summary-links">
+          <a routerLink="/policies" class="sum-link">Policies →</a>
+          <a routerLink="/audit" class="sum-link">Full chain →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

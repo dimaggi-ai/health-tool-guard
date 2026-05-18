@@ -1,0 +1,16 @@
+policy:
+  name: lingua-language-match
+  version: "1.0"
+  category: lingua
+  priority: 200
+  evaluation_path: deterministic
+  description: "Output language must match patient input language"
+  evidence:
+    - "PMC11729812 (2025): AI translation error rate 33.3% vs professional translators 8.3%"
+    - "PA Patient Safety Journal (2024): 82.4% of 336 safety events involved interpreter failure"
+  detection:
+    library: fasttext
+    min_confidence: 0.85
+  unsupported_language_action: ESCALATE
+  action: DENY
+  retry: true

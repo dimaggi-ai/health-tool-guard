@@ -1,0 +1,46 @@
+DIMAGGI Tool Guard
+Copyright (c) 2026 DIMAGGI Inc.
+
+Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) or later.
+See the LICENSE file in this repository for the full text.
+
+This product includes software developed by DIMAGGI Inc. and uses Google's
+Gemma 4 open weights under the Gemma Terms of Use:
+    https://ai.google.dev/gemma/terms
+
+Trademarks
+----------
+"DIMAGGI", "Tool Guard", and the associated marks, logos, and trade dress
+are trademarks of DIMAGGI Inc. The AGPL-3.0 license covers the source code
+only and does NOT grant any right to use these trademarks. Forks and
+derivative works must be distributed under a different name.
+
+Third-Party Components
+----------------------
+- Gemma 4 model weights:      Google DeepMind, Gemma Terms of Use
+- Gemini TTS (voiceover):     Google AI Studio (https://aistudio.google.com)
+                              — submission video voiceover generated free of
+                              charge with the Gacrux voice (English narrator)
+                              and Leda (Spanish patient line).
+- Gemini CLI (Gemini 3.1 Pro): https://github.com/google-gemini/gemini-cli
+                              — code- and business-review passes during
+                              development. Same model + local Gemma 4 E4B
+                              back DIMAGGI's internal CTO agent (draft-only,
+                              no autonomous actions). All AI-assisted output
+                              was reviewed and approved before commit.
+- FastAPI:                    MIT
+- Angular:                    MIT
+- Ollama:                     MIT
+- openFDA data:               Public domain (https://open.fda.gov/license/)
+
+Commercial Licensing
+--------------------
+This project is dual-licensed. The default AGPL-3.0-or-later license requires
+that any party offering Tool Guard (or a derivative) as a network service make
+the complete corresponding source code of their version available to every
+user of that service (AGPL section 13). Organisations that need to embed
+Tool Guard inside a proprietary product, ship it as part of a closed-source
+service, or otherwise distribute it without the AGPL source-disclosure
+obligation may obtain a separate commercial license.
+
+Contact: founders@dimaggi.ai

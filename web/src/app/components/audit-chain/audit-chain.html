@@ -1,0 +1,121 @@
+<div class="audit-wrap">
+
+  <div *ngIf="loading()" style="padding: 40px; text-align: center; color: #64748b;">
+    <div style="font-size: 2rem; margin-bottom: 8px;">⛓</div>
+    <div>Computing SHA-256 chain via Web Crypto…</div>
+  </div>
+
+  <div *ngIf="errorMsg() as err" style="padding: 24px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; color:#991b1b;">
+    <strong>Audit chain failed to build:</strong> {{ err }}
+  </div>
+
+  <ng-container *ngIf="!loading()">
+  <!-- What is the audit chain? -->
+  <div class="explainer">
+    <div class="explainer-top">
+      <h1 class="page-title">Tamper-Evident Audit Chain</h1>
+      <div class="chain-status">
+        <span class="status-dot-green"></span>
+        <span class="status-text">{{ chainStatus }}</span>
+      </div>
+    </div>
+    <p class="explainer-body">
+      Every decision Tool Guard makes — ALLOW, DENY, REDACT, ESCALATE — is recorded here.
+      Each record contains the <strong>SHA-256 hash of the previous record</strong>, forming an unbreakable chain.
+      If anyone edits, deletes, or reorders even one record, every subsequent hash breaks — and tampering becomes instantly detectable.
+    </p>
+    <div class="chain-diagram">
+      <div class="diag-node genesis">
+        <div class="diag-label">Record #1</div>
+        <div class="diag-sub">Genesis</div>
+        <div class="diag-hash">{{ genesisHash.slice(0,18) }}…</div>
+      </div>
+      <div class="diag-arrow">→ contains hash of #1 →</div>
+      <div class="diag-node mid">
+        <div class="diag-label">Record #2</div>
+        <div class="diag-sub">Links to #1</div>
+        <div class="diag-hash">sha256_…</div>
+      </div>
+      <div class="diag-arrow">→ contains hash of #2 →</div>
+      <div class="diag-node latest">
+        <div class="diag-label">Record #{{ records().length }}</div>
+        <div class="diag-sub">Latest</div>
+        <div class="diag-hash">{{ latestHash.slice(0,18) }}…</div>
+      </div>
+    </div>
+    <div class="verify-cmd">
+      <span class="verify-lbl">Verify offline:</span>
+      <code>toolguard verify --chain audit.jsonl</code>
+      <button class="download-btn" (click)="downloadJsonl(false)">⬇ Full chain</button>
+      <button class="download-btn" (click)="downloadJsonl(true)" style="margin-left:4px">⬇ Filtered</button>
+    </div>
+  </div>
+
+  <!-- Search + filter -->
+  <div class="search-bar">
+    <input class="search-input" type="text" placeholder="Search decisions, tools, scenarios, policies…"
+      [value]="searchQuery" (input)="onSearch($event)">
+    <div class="filter-row">
+      <button *ngFor="let d of filterOptions" class="filter-btn"
+        [class.active]="activeFilter === d" (click)="setFilter(d)">{{ d }}</button>
+    </div>
+    <div class="search-count">{{ filteredRecords.length }} of {{ records().length }} records</div>
+  </div>
+
+  <!-- Record list — oldest (#1) to newest (#N) -->
+  <div class="record-list">
+    <div *ngFor="let r of filteredRecords; let i = index" class="record-wrap">
+
+      <div class="chain-line" *ngIf="i > 0">
+        <div class="chain-line-inner"></div>
+        <span class="chain-line-label">↑ contains hash of #{{ filteredRecords.length - i + 1 }}</span>
+      </div>
+
+      <div class="record" [ngClass]="decisionClass(r.decision)">
+        <div class="record-header">
+          <span class="rec-num">#{{ filteredRecords.length - i }}</span>
+          <span class="decision-badge-sm" [ngClass]="decisionClass(r.decision)">
+            {{ r.decision }}
+          </span>
+          <span class="rec-tool">{{ r.tool }}</span>
+          <span class="rec-scenario">{{ r.scenario }}</span>
+          <span class="rec-lang" *ngIf="r.language !== 'en'">{{ r.language.toUpperCase() }}</span>
+          <button class="toggle-btn" type="button" (click)="toggle(r.id)">
+            {{ isExpanded(r.id) ? '▲ Hide' : '▼ Details' }}
+          </button>
+        </div>
+
+        <div class="record-body" [class.open]="isExpanded(r.id)">
+          <div class="record-body-inner">
+            <p class="rec-explanation">{{ r.explanation }}</p>
+            <div class="rec-hashes">
+              <div class="hash-row-item">
+                <span class="hl">Previous record hash</span>
+                <code class="hv">{{ r.prevHash }}</code>
+                <button class="copy-btn" (click)="copyHash(r.prevHash); $event.stopPropagation()" title="Copy hash">⧉</button>
+              </div>
+              <div class="hash-arrow">↓ SHA-256(this record's content)</div>
+              <div class="hash-row-item this-hash">
+                <span class="hl">This record's hash</span>
+                <code class="hv highlight">{{ r.hash }}</code>
+                <button class="copy-btn" (click)="copyHash(r.hash); $event.stopPropagation()" title="Copy hash">⧉</button>
+              </div>
+            </div>
+            <div class="rec-meta-row">
+              <span class="rm"><strong>Policy:</strong> {{ r.policy }}</span>
+              <span class="rm"><span class="eval-badge" [class.hybrid]="r.evalPath==='HYBRID'">{{ r.evalPath }}</span></span>
+              <span class="rm"><strong>Latency:</strong> {{ r.latencyMs }}ms</span>
+              <span class="rm"><strong>Modality:</strong> {{ r.modality }}</span>
+              <span class="rm"><strong>Nonce:</strong> <code class="small">{{ r.nonce }}</code></span>
+              <span class="rm"><strong>HMAC:</strong> <code class="small">{{ r.hmac }}</code>
+                <span class="key-id-note">key: demo_v1 — rotation available in production config</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </ng-container>
+
+</div>

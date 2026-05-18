@@ -1,0 +1,39 @@
+policy:
+  name: no-public-actions
+  version: "1.0"
+  category: agent-governance
+  priority: 500
+  evaluation_path: deterministic
+  description: >
+    Deny any agent tool call that would trigger a public-facing action —
+    sending email, posting to social media, creating GitHub issues/PRs,
+    submitting forms or applications, or contacting external parties.
+    All such actions require explicit human approval before execution.
+  evidence:
+    - "NIST AI RMF 1.0 Govern 1.1: human oversight for consequential AI actions"
+    - "EU AI Act Article 14: human oversight for high-risk AI systems"
+    - "DIMAGGI internal policy: agent outputs are drafts, humans decide on public actions"
+  match:
+    tool_name:
+      in:
+        - send_email
+        - send_message
+        - post_to_linkedin
+        - post_to_twitter
+        - post_to_hn
+        - create_github_issue
+        - create_github_pr
+        - create_github_comment
+        - merge_pr
+        - submit_form
+        - submit_application
+        - submit_grant
+        - publish_post
+        - publish_article
+        - contact_external
+        - schedule_send
+        - deploy_to_production
+  action: DENY
+  message: >
+    Tool '{tool_name}' is a public action and requires human approval before execution.
+    The agent's output has been saved as a DRAFT. Review and approve manually.

@@ -1,0 +1,12 @@
+policy:
+  name: lingua-reading-level
+  version: "1.0"
+  category: lingua
+  priority: 150
+  evaluation_path: hybrid
+  description: "Output complexity must be within patient literacy level"
+  deep_evaluation:
+    model: gemma4:e4b
+    prompt: "Rate readability for grade {reading_level} literacy in {language}."
+  action: DENY
+  retry: true
