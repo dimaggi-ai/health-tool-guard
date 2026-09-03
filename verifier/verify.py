@@ -92,7 +92,7 @@ def verify(path: str) -> bool:
 
         # ── Check 1: chain linkage ────────────────────────────────────────
         if idx == 1:
-            # First record: any genesis sentinel is accepted — we just record it
+            # First record: any genesis sentinel is accepted; we just record it
             link_ok = True
         else:
             expected_prev = records[idx - 2].get("hash", "")

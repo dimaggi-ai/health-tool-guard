@@ -26,7 +26,7 @@ The submission video demonstrates two cases live, end to end:
 
 2. **Acholi audio → ESCALATE.** A patient speaks Acholi — a Nilotic language with ~1 million speakers, **not in any WHO/FDA-cleared clinical model**. Tool Guard refuses to hallucinate what it cannot verify, escalates the request to a human clinician (Dr. K. Okello, Gulu Regional), and records the ESCALATE in the same audit chain.
 
-The same Gemma 4 model also runs **on-device** — a third demo on a phone in airplane mode, with the openFDA labels embedded in the system prompt, shows the same gate working offline in Spanish.
+The same Gemma 4 model also runs **on-device**. A third demo, running on a phone in airplane mode with openFDA labels embedded in the system prompt, shows the gate working offline in Spanish.
 
 ---
 
@@ -182,7 +182,7 @@ The same Gemma 4 model also runs **on-device** — a third demo on a phone in ai
 
 ## 10 Languages / 5 Scripts
 
-Lingua policies enforce language-level safety across multilingual deployments. The certified-language set defines which languages Gemma 4 may serve directly versus which must be escalated to a human.
+Lingua policies enforce language-level safety across multilingual deployments. The certified-language set defines which languages Gemma 4 may serve directly and which must be escalated to a human.
 
 | Language | Code | Script | Tool Guard treatment |
 |---|---|---|---|
@@ -232,7 +232,7 @@ Then open **[http://localhost:8080](http://localhost:8080)**.
 
 First start takes ~5 min (3 GB model pull + npm install + build). Subsequent starts are <30 s — the model is cached in a named volume.
 
-**Requirements:** Docker 24+, NVIDIA GPU with `nvidia-container-toolkit` for the warm-latency numbers above (~10 GB VRAM). Without a GPU the deterministic policies, audit chain, and scripted scenarios still run; HYBRID Gemma 4 calls fall back to CPU at <2 tok/s — usable for the demo, far slower than the warm-latency table. See [SETUP.md](SETUP.md) for native (non-Docker) install.
+**Requirements:** Docker 24+, NVIDIA GPU with `nvidia-container-toolkit` for the warm-latency numbers above (~10 GB VRAM). Without a GPU, deterministic policies, audit chain, and scripted scenarios still run; HYBRID Gemma 4 calls fall back to CPU at <2 tok/s — usable for the demo but far slower than the warm-latency table. See [SETUP.md](SETUP.md) for native (non-Docker) install.
 
 ### Verify the audit chain
 

@@ -19,7 +19,7 @@ Reactive state uses Angular signals (`signal<T>`, `computed`, `asReadonly()`). T
 
 ### 1.2 Backend: FastAPI on Python
 
-The evaluation server (`backend/main.py`) is a FastAPI application served via Uvicorn on port 8092. It runs as a persistent background service with auto-start. CORS is open (`allow_origins=["*"]`) for demo convenience — noted as a known tradeoff.
+The evaluation server (`backend/main.py`) is a FastAPI application served via Uvicorn on port 8092. It runs as a persistent background service with auto-start. CORS is open (`allow_origins=["*"]`), a known tradeoff for demo convenience.
 
 The backend exposes these routes:
 - `POST /evaluate` — main evaluation endpoint, returns `EvalResponse`
@@ -147,7 +147,7 @@ The latency values directly distinguish path types and cannot be faked without a
 | HYBRID (warm) | 634–810 ms | Gemma 4 warm inference |
 | HYBRID (cold) | ~4,800 ms | Gemma 4 cold-start including VRAM load |
 
-A system returning faked latencies would need to deliberately sleep for 634+ ms on hybrid paths while returning <12 ms on deterministic ones — an implausible design for a fake.
+A system faking latencies would have to deliberately sleep for 634+ ms on hybrid paths while returning <12 ms on deterministic ones, an implausible design for a fake.
 
 ### 2.6 Auto-Warm and Idle Watchdog
 
@@ -161,13 +161,13 @@ The frontend calls `POST /load` during `ngOnInit` if the `/health` response show
 
 **Symptom.** Both `translate_with_gemma()` returning empty strings and `eval_hybrid()` returning `""` for the `response` field in the Ollama JSON.
 
-**Root cause.** Gemma 4 E4B generates chain-of-thought thinking tokens by default. With an unstructured prompt and `num_predict: 300`, the thinking output consumed the entire generation budget. The `response` field in the Ollama reply was present but empty — a silent failure with no error code.
+**Root cause.** Gemma 4 E4B generates chain-of-thought thinking tokens by default. With an unstructured prompt and `num_predict: 300`, the thinking output consumed the entire generation budget. The `response` field in the Ollama reply was present but empty, a silent failure with no error code.
 
 **Fix.** Added `"format": "json"` to all Ollama calls. This enables Ollama's structured output mode, which constrains the model to valid JSON output and prevents thinking tokens from exhausting the token budget. Increased `num_predict` to 600 for evaluation calls and 2000 for translation calls to give the model adequate headroom after thinking overhead. Both changes are visible in the production backend code.
 
 ### Challenge 2: Lexical Accuracy in Low-Resource Clinical Languages
 
-Constructing patient scenarios in Luganda and Quechua — both under-resourced languages with limited NLP tooling — required multiple correction passes against native-language sources. Several initial lexical choices were semantically incorrect; one was identified as culturally inappropriate for a clinical context and corrected immediately.
+Building patient scenarios in Luganda and Quechua, both under-resourced languages with limited NLP tooling, required multiple correction passes against native-language sources. Several initial lexical choices were semantically incorrect; one was identified as culturally inappropriate for a clinical context and corrected immediately.
 
 **Luganda corrections (Bantu, Uganda):**
 - Verb for "frightened/afraid": initial form used the wrong root; corrected to `ntya` (root `-tya` = to fear/be afraid), verified against Bantu morphology documentation
@@ -206,7 +206,7 @@ const hash = 'sha256_' + Array.from(new Uint8Array(buf))
                                .map(b => b.toString(16).padStart(2, '0')).join('');
 ```
 
-Each record hashes the full record content (excluding the `hash` field itself) and carries `prevHash` pointing to the previous record's hash. The `verify()` method re-derives every hash independently and checks both content integrity and chain linkage. The 15 static demo records remain on the Audit Chain page as examples (using `stableHash`, labeled with a `nonce` field) but are clearly distinct from live-generated records and the verifier skips content hash checking for them.
+Each record hashes its full content (excluding the `hash` field) and includes a `prevHash` pointing to the previous record's hash. The `verify()` method re-derives every hash independently, checking both content integrity and chain linkage. The 15 static demo records remain on the Audit Chain page as examples (using `stableHash`, labeled with a `nonce` field). They are clearly distinct from live-generated records, and the verifier skips content hash checking for them.
 
 The Python verifier (`verifier/verify.py`) replicates the same logic with `hashlib.sha256` and `json.dumps(payload, sort_keys=True, separators=(",", ":"))` for cross-platform offline verification.
 
@@ -296,7 +296,7 @@ The initial backend implementation truncated the HMAC to 16 hex characters (8 by
 
 ## 5. What Is Real vs Pre-Built
 
-This section is a complete and honest account.
+This section provides a complete and honest account.
 
 ### Real (live, computed at runtime)
 
@@ -388,7 +388,7 @@ Demo records (with `nonce`) are chain-linked but content-hash verification is sk
 python verify.py verify --chain toolguard-audit.jsonl
 ```
 
-Exit code 0 means intact. Exit code 1 means tampered or file error.
+Exit code 0 means intact; exit code 1 means tampered or file error.
 
 ### 7.3 What the Verifier Cannot Catch
 

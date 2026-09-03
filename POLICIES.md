@@ -44,7 +44,7 @@ These policies govern AI agents operating in clinical or health-adjacent context
 
 **What it protects against**: Leakage of Protected Health Information (PHI) or Personally Identifiable Information (PII) — names, SSNs, date-of-birth combinations, insurance IDs, or free-text that contains identifiers — from tool call responses back to the agent context where it could be logged, cached, or forwarded downstream.
 
-**Evidence basis**: HIPAA 45 CFR §164.514 (Safe Harbor de-identification standard), GDPR Article 9 (special categories of personal data), and NIST SP 800-188 (de-identification of government datasets). All three are cited in `policies/clinical/pii-boundary.yaml`.
+**Evidence basis**: HIPAA 45 CFR §164.514 (Safe Harbor de-identification standard), GDPR Article 9 (special categories of personal data), and NIST SP 800-188 (de-identification of government datasets). `policies/clinical/pii-boundary.yaml` cites all three.
 
 **Decision + action**: The tool call is allowed to proceed, but the response is scrubbed before the agent sees it. Fields matching PII patterns (regex + structural heuristics) are replaced with `[REDACTED]`. The audit record captures which fields were redacted and the original field count.
 
@@ -91,7 +91,7 @@ These policies govern AI agents operating in clinical or health-adjacent context
 
 **Evidence basis**: AMA clinical decision support guidelines, FDA drug labeling requirements (21 CFR §201.57), and the OpenMRS contraindication alerting specification. The Gemma 4 E4B model is prompted to reason over the patient context and the proposed drug/treatment to identify contraindications that rule-based systems miss.
 
-**Decision + action**: The proxy assembles a structured prompt from the tool call arguments (drug name, dose, patient medication list, allergy list) and sends it to Gemma 4 E4B running locally via Ollama. If Gemma identifies a contraindication, the call is blocked with a DENY that includes the model's natural-language explanation.
+**Decision + action**: The proxy builds a structured prompt from the tool call arguments (drug name, dose, patient medication list, allergy list) and sends it to Gemma 4 E4B running locally via Ollama. If Gemma identifies a contraindication, the system blocks the call with a DENY that includes the model's natural-language explanation.
 
 **Example**:
 - Tool: `prescribe_medication`
@@ -103,7 +103,7 @@ These policies govern AI agents operating in clinical or health-adjacent context
 
 ## Security Domain
 
-These policies protect against adversarial misuse of AI agents — exfiltration, rate abuse, and prompt injection patterns that exploit tool call surfaces.
+These policies protect against adversarial misuse of AI agents: exfiltration, rate abuse, and prompt injection patterns that exploit tool call surfaces.
 
 ---
 
@@ -170,7 +170,7 @@ These policies enforce language-level safety for multilingual AI deployments, en
 
 **What it protects against**: An agent responding in a different language than the user's session language — a failure mode that causes confusion, excludes non-English speakers, and undermines the premise of multilingual deployment.
 
-**Evidence basis**: EU Accessibility Act (Directive 2019/882) requires digital services to be accessible to users in their preferred language. W3C Web Content Accessibility Guidelines (WCAG 2.2, Success Criterion 3.1.1) mandates that the language of a page or component can be programmatically determined.
+**Evidence basis**: The EU Accessibility Act (Directive 2019/882) requires digital services to be accessible in users' preferred languages. W3C Web Content Accessibility Guidelines (WCAG 2.2, Success Criterion 3.1.1) mandates that the language of a page or component can be programmatically determined.
 
 **Decision + action**: The proxy extracts the language tag from the session context and applies fast n-gram language detection to the tool call response text. If the detected language differs from the session language, the call is flagged with FLAG and a warning is appended to the agent's context.
 
@@ -237,7 +237,7 @@ These policies enforce language-level safety for multilingual AI deployments, en
 | **Latency** | < 800 ms |
 | **Decision** | FLAG |
 
-**What it protects against**: Tool responses that are written at a reading level mismatched to the target audience — overly technical responses for patients, or oversimplified responses in professional contexts. In health literacy contexts, text written above a Grade 6 level has been shown to reduce patient comprehension and medication adherence.
+**What it protects against**: Tool responses that are written at a reading level mismatched to the target audience, such as overly technical responses for patients or oversimplified responses in professional contexts. In health literacy contexts, text written above a Grade 6 level has been shown to reduce patient comprehension and medication adherence.
 
 **Evidence basis**: US Department of Health and Human Services Plain Language guidelines (Health Literacy), NIH National Institute on Aging recommendations (reading level ≤ Grade 8 for patient-facing health content), and AMA guidelines on health literacy. The WHO health equity framework is also cited for non-English deployments.
 

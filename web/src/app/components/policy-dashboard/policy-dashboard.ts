@@ -69,7 +69,8 @@ export class PolicyDashboardComponent {
     { name: 'lingua-reading-level',   category: 'Lingua',   path: 'hybrid',        lastFired: 'never'   },
   ];
 
-  // Match counts derived live from AUDIT_RECORDS — dashboard and audit chain always agree
+  // Match counts derived live from AUDIT_RECORDS so dashboard and audit chain always
+  // agree
   get policies() {
     const counts: Record<string, number> = {};
     for (const r of this.records) { counts[r.policy] = (counts[r.policy] ?? 0) + 1; }

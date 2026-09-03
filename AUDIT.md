@@ -93,7 +93,7 @@ Where `||` denotes concatenation (no separator). The operator secret is the valu
 
 ## Nonce
 
-The `nonce` field is a 32-byte (64 hex character) random value generated fresh for each record at write time. It is included in the hash computation, so two records with identical content but different nonces produce different hashes. This prevents replay attacks where an attacker copies a legitimate ALLOW record and inserts it to substitute for a DENY.
+The `nonce` field holds a 32-byte (64 hex character) random value generated fresh for each record at write time. Because it participates in the hash computation, two records with identical content but different nonces yield distinct hashes. This stops replay attacks where an attacker copies a legitimate ALLOW record and inserts it to substitute for a DENY.
 
 ---
 

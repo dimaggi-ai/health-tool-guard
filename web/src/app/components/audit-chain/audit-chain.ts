@@ -39,7 +39,7 @@ export class AuditChainComponent {
     source: 'Live run',
   })));
 
-  // Live records are surfaced first; scripted ledger follows for context.
+  // Live records appear first; scripted ledger follows for context.
   records = computed(() => [...this.liveRecords(), ...this.scripted()]);
 
   async ngOnInit() {
